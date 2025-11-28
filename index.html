@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attendant e-pass</title>
+<style>
+    /* --- बेसिक सेटिंग्स --- */
+    * { box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f7f8fc;
+        margin: 0; padding: 0; color: #555;
+    }
+
+    /* --- ऊपर का हेडर --- */
+    .navbar {
+        background-color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .navbar-title {
+        color: #d64937; /* टेराकोटा ऑरेंज */
+        font-size: 18px; font-weight: 500;
+    }
+
+    /* --- कंटेनर --- */
+    .container {
+        padding: 20px;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    /* --- कैमरा सेक्शन (गोल आकार) --- */
+    .camera-container {
+        width: 220px;
+        height: 220px;
+        margin: 10px auto 20px auto;
+        border-radius: 50%;
+        overflow: hidden;
+        background-color: #ddd;
+        border: 4px solid white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    /* वीडियो को मिरर (Mirror) जैसा दिखाने के लिए */
+    #camera-stream {
+        width: 100%; height: 100%; object-fit: cover; display: block;
+        transform: scaleX(-1); 
+    }
+    #captured-image {
+        width: 100%; height: 100%; object-fit: cover; display: none; 
+        position: absolute; top: 0; left: 0;
+        transform: scaleX(-1);
+    }
+
+    /* --- बटन स्टाइल्स --- */
+    .btn-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .btn-orange {
+        background-color: #d64937;
+        color: white;
+        border: none;
+        padding: 12px 0;
+        width: 180px;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(214, 73, 55, 0.3);
+        transition: transform 0.1s;
+    }
+    .btn-orange:active { transform: scale(0.98); }
+
+    /* --- इनपुट फॉर्म --- */
+    .form-group { margin-bottom: 15px; }
+    .label { display: block; margin-bottom: 8px; color: #666; font-size: 14px; }
+    .required { color: #d32f2f; }
+    
+    input[type="text"], input[type="number"] {
+        width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;
+        font-size: 16px; outline: none; transition: border 0.3s, box-shadow 0.3s;
+    }
+    input:focus {
+        border-color: #64b5f6;
+        box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.3);
+    }
+
+    /* --- पेशेंट डिटेल्स (टेक्स्ट) --- */
+    .patient-details {
+        margin: 30px 0; font-size: 15px; line-height: 1.8; color: #666;
+    }
+
+    /* --- टेबल --- */
+    .table-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 50px;
+    }
+    .table-header {
+        background-color: #d64937;
+        color: white;
+        text-align: center;
+        padding: 12px;
+        font-size: 18px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    
+    th {
+        text-align: left; padding: 12px 15px; color: #d64937;
+        font-weight: bold; font-size: 14px; border-bottom: 1px solid #eee;
+    }
+    td {
+        padding: 12px 15px; border-bottom: 1px solid #f0f0f0;
+        font-size: 14px; vertical-align: middle;
+    }
+    .status-inactive { color: #555; }
+    
+    /* रिमूव बटन */
+    .btn-remove {
+        background-color: #d9303e; color: white; border: none;
+        padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer;
+    }
+    .btn-remove:hover { background-color: #b71c1c; }
+
+</style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="navbar-title">Attendant e-pass</div>
+    </div>
+
+    <div class="container">
+
+        <div class="camera-container">
+            <video id="camera-stream" autoplay playsinline muted></video>
+            <canvas id="capture-canvas" style="display:none;"></canvas>
+            <img id="captured-image" alt="Captured Photo">
+        </div>
+
+        <div class="btn-container">
+            <button id="captureBtn" class="btn-orange" onclick="toggleCamera()">Capture</button>
+        </div>
+
+        <div class="form-group">
+            <label class="label">Enter Mobile Number<span class="required">*</span></label>
+            <input type="number" id="mobileInput" placeholder="Mobile Number">
+        </div>
+
+        <div class="form-group">
+            <label class="label">Enter Name<span class="required">*</span></label>
+            <input type="text" id="nameInput" placeholder="Visitor name">
+        </div>
+
+        <div class="btn-container" id="saveBtnContainer" style="display: none;">
+            <button class="btn-orange" onclick="saveData()">Save</button>
+        </div>
+
+        <div class="patient-details">
+            <div>UHID No : ML10446216</div>
+            <div>Patient Name : Mr. Asif Zama</div>
+            <div>Pass Type : ICU 1</div>
+            <div>Room Number : ICU02</div>
+            <div>Area : ICU 1</div>
+            <div>Doctor Name : NARESH</div>
+            <div>Child Permission : NO</div>
+            <div>Food Permission : NO</div>
+            <div>Number of person allowed : 1</div>
+            <div>Visit Time From: || 11:25 - 11:45 || 18:25 - 18:45</div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">Attendant Registration Details</div>
+            <table id="attendantTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Arif Zama</td>
+                        <td class="status-inactive">Inactive</td>
+                        <td><button class="btn-remove" onclick="removeRow(this)">Remove</button></td>
+                    </tr>
+                    <tr>
+                        <td>Sheikh Junaid</td>
+                        <td class="status-inactive">Inactive</td>
+                        <td><button class="btn-remove" onclick="removeRow(this)">Remove</button></td>
+                    </tr>
+                    <tr>
+                        <td>Shaheen</td>
+                        <td class="status-inactive">Inactive</td>
+                        <td><button class="btn-remove" onclick="removeRow(this)">Remove</button></td>
+                    </tr>
+                    <tr>
+                        <td>Ashraf Ali</td>
+                        <td class="status-inactive">Inactive</td>
+                        <td><button class="btn-remove" onclick="removeRow(this)">Remove</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        const video = document.getElementById('camera-stream');
+        const canvas = document.getElementById('capture-canvas');
+        const image = document.getElementById('captured-image');
+        const captureBtn = document.getElementById('captureBtn');
+        const saveBtnContainer = document.getElementById('saveBtnContainer'); // Save Button Div
+        
+        let stream = null;
+        let isCaptured = false;
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user', width: { ideal: 400 }, height: { ideal: 400 } }, 
+                    audio: false 
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("Camera error:", err);
+            }
+        }
+        window.addEventListener('load', startCamera);
+
+        function toggleCamera() {
+            if (!isCaptured) {
+                // PHOTO KHICHO
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                image.src = canvas.toDataURL('image/png');
+                
+                video.style.display = 'none';
+                image.style.display = 'block';
+                
+                captureBtn.innerText = "Retake";
+                
+                // --- SAVE BUTTON DIKHAO ---
+                saveBtnContainer.style.display = 'block';
+
+                isCaptured = true;
+            } else {
+                // RETAKE (Video wapas dikhao)
+                image.style.display = 'none';
+                video.style.display = 'block';
+                
+                captureBtn.innerText = "Capture";
+                
+                // --- SAVE BUTTON CHHUPAO ---
+                saveBtnContainer.style.display = 'none';
+
+                isCaptured = false;
+            }
+        }
+
+        function saveData() {
+            const nameInp = document.getElementById('nameInput');
+            const mobileInp = document.getElementById('mobileInput');
+            const name = nameInp.value;
+            const mobile = mobileInp.value;
+
+            // Validation
+            if(!isCaptured) {
+                alert("Please capture a photo first!");
+                return;
+            }
+            if(name.trim() === "" || mobile.trim() === "") {
+                alert("Please enter both Name and Mobile Number!");
+                return;
+            }
+
+            // Table Add Row
+            const table = document.getElementById('attendantTable').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+            
+            const cellName = newRow.insertCell(0);
+            cellName.innerText = name;
+            
+            const cellStatus = newRow.insertCell(1);
+            cellStatus.innerText = "Inactive";
+            cellStatus.className = "status-inactive";
+
+            const cellRemove = newRow.insertCell(2);
+            const btn = document.createElement("button");
+            btn.className = "btn-remove";
+            btn.innerText = "Remove";
+            btn.onclick = function() { removeRow(this); };
+            cellRemove.appendChild(btn);
+
+            // Reset Form
+            nameInp.value = "";
+            mobileInp.value = "";
+            
+            // Reset Camera & Hide Save Button
+            image.style.display = 'none';
+            video.style.display = 'block';
+            captureBtn.innerText = "Capture";
+            saveBtnContainer.style.display = 'none'; // Save button wapas gayab
+            
+            isCaptured = false;
+
+            alert("Visitor Added Successfully!");
+        }
+
+        function removeRow(btn) {
+            var row = btn.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+    </script>
+
+</body>
+</html>
