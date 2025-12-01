@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Attendant e-pass</title>
 <style>
+    /* --- बेसिक सेटिंग्स --- */
     * { box-sizing: border-box; }
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -12,38 +13,43 @@
         margin: 0; padding: 0; color: #555;
     }
 
+    /* --- नेविगेशन बार --- */
     .navbar {
-        background-color: white;
-        padding: 15px 20px;
+        padding: 10px 20px;
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between; 
         align-items: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        background-color: none;
+        border-bottom: 1px solid #ebebeb; 
+    }
+    .navbar-logo {
+        height: 45px; /* Medanta logo */ 
+        width: 100px;
     }
     .navbar-title {
-        color: #d64937; 
+        color: #ef4e30; /* Attendant e Pass */
         font-size: 18px; font-weight: 500;
     }
 
-
+    /* --- कंटेनर (Main Layout) --- */
     .container {
         padding: 20px;
-        max-width: 500px;
-        margin: 0 auto;
+        max-width: 500px; 
+        margin: 0 auto; /* बॉक्स को स्क्रीन के बीच में रखता है */
+        background-color: transparent;
     }
 
+    /* --- कैमरा सेक्शन --- */
     .camera-container {
         width: 220px;
         height: 220px;
         margin: 10px auto 20px auto;
-        border-radius: 50%;
+        border-radius: 50%; 
         overflow: hidden;
         background-color: #ddd;
-        border: 4px solid white;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border: 0px solid white;
         position: relative;
     }
-    
     #camera-stream {
         width: 100%; height: 100%; object-fit: cover; display: block;
         transform: scaleX(-1); 
@@ -54,81 +60,124 @@
         transform: scaleX(-1);
     }
 
-
+    /* --- बटन स्टाइल्स --- */
     .btn-container {
         text-align: center;
         margin-bottom: 20px;
     }
     .btn-orange {
-        background-color: #d64937;
+        background-color: #d74b30; /* Updated Color (Exact Match) */
         color: white;
         border: none;
         padding: 12px 0;
         width: 180px;
         border-radius: 25px;
-        font-size: 16px;
+        font-size: 16px; /* फ़ॉन्ट थोड़ा बड़ा किया ताकि स्क्रीनशॉट जैसा दिखे */
         cursor: pointer;
-        box-shadow: 0 4px 6px rgba(214, 73, 55, 0.3);
+        box-shadow: none; 
         transition: transform 0.1s;
     }
-    .btn-orange:active { transform: scale(0.98); }
+    .btn-orange:active { transform: scale(0.98); } 
 
-    .form-group { margin-bottom: 15px; }
+    /* --- इनपुट फॉर्म --- */
+    .form-group { 
+        margin-bottom: 15px;
+        text-align: left; /* लेबल्स Left में */
+    }
     .label { display: block; margin-bottom: 8px; color: #666; font-size: 14px; }
     .required { color: #d32f2f; }
     
     input[type="text"], input[type="number"] {
         width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;
-        font-size: 16px; outline: none; transition: border 0.3s, box-shadow 0.3s;
+        font-size: 14px; outline: none; transition: border 0.3s;
+        box-shadow: none;
+        background: white;
     }
+    /* फोकस पर ब्लू बॉर्डर जैसा स्क्रीनशॉट में है */
     input:focus {
-        border-color: #64b5f6;
-        box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.3);
+        border-color: none; 
+        box-shadow: 0px;
     }
 
+    /* --- पेशेंट डिटेल्स --- */
     .patient-details {
-        margin: 30px 0; font-size: 15px; line-height: 1.8; color: #666;
+        margin: 30px 0; 
+        font-size: 15px; 
+        line-height: 1.8; 
+        color: #666;
+        text-align: left; /* टेक्स्ट Left में */
     }
 
-
+    /* --- टेबल सेटिंग्स --- */
     .table-card {
         background: white;
-        border-radius: 8px;
+        border-radius: 6px;
         overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border: 1px solid #dcdcdc; 
+        box-shadow: none;
         margin-bottom: 50px;
     }
+    
     .table-header {
-        background-color: #d64937;
+        background-color: #d74b30; /* Updated Color */
         color: white;
         text-align: center;
-        padding: 12px;
-        font-size: 18px;
+        padding: 7px; /* पैडिंग थोड़ी बढ़ाई */
+        font-size: 17px;
+        font-weight: 500;
     }
-    table { width: 100%; border-collapse: collapse; }
+
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        table-layout: fixed; 
+    }
     
     th {
-        text-align: left; padding: 12px 15px; color: #d64937;
-        font-weight: bold; font-size: 14px; border-bottom: 1px solid #eee;
+        padding: 12px 5px; 
+        color: #d74b30; /* Updated Color for Header Text if needed, here kept white bg */
+        background-color: white; 
+        font-weight: bold; 
+        font-size: 13px; 
+        border-bottom: 1px solid #eee; 
     }
-    td {
-        padding: 12px 15px; border-bottom: 1px solid #f0f0f0;
-        font-size: 14px; vertical-align: middle;
-    }
-    .status-inactive { color: #555; }
     
-
-    .btn-remove {
-        background-color: #d9303e; color: white; border: none;
-        padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer;
+    td {
+        padding: 10px 5px; 
+        border-bottom: 1px solid #eee; 
+        font-size: 14px; 
+        vertical-align: middle;
+        color: #333;
     }
-    .btn-remove:hover { background-color: #b71c1c; }
+    
+    /* Columns */
+    th:nth-child(1), td:nth-child(1) { text-align: left; width: 45%; padding-left: 15px; }
+    th:nth-child(2), td:nth-child(2) { text-align: center; width: 25%; }
+    th:nth-child(3), td:nth-child(3) { text-align: left; width: 45%; padding-right: 10px; }
+    
+    tr:last-child td { border-bottom: none; }
+
+    .status-inactive { color: #000000; font-size: 13px; }
+    
+    .btn-remove {
+        background-color: #dc3545; 
+        color: white; 
+        border: none;
+        padding: 10px 0; 
+        border-radius: 4px; 
+        font-size: 14px; 
+        cursor: pointer;
+        width: 100%; 
+        max-width: 80px; 
+        box-shadow: none;
+    }
 
 </style>
 </head>
 <body>
 
     <div class="navbar">
+        <img src="https://img.sanishtech.com/u/6a92f9fa2872c824e8e72883df9693d3.jpg" alt="Medanta Logo" class="navbar-logo">
         <div class="navbar-title">Attendant e-pass</div>
     </div>
 
@@ -161,14 +210,14 @@
         <div class="patient-details">
             <div>UHID No : ML10446216</div>
             <div>Patient Name : Mr. Asif Zama</div>
-            <div>Pass Type : ICU 2</div>
+            <div>Pass Type : ICU 3</div>
             <div>Room Number : ICU25</div>
-            <div>Area : ICU 2</div>
+            <div>Area : ICU 3</div>
             <div>Doctor Name : NARESH</div>
             <div>Child Permission : NO</div>
             <div>Food Permission : NO</div>
             <div>Number of person allowed : 1</div>
-            <div>Visit Time From: || 12:00 - 12:15 || 19:15 - 19:30</div>
+            <div>Visit Time From: || 12:15 - 12:30 || 19:15 - 19:30</div>
         </div>
 
         <div class="table-card">
@@ -198,7 +247,7 @@
                         <td><button class="btn-remove" onclick="removeRow(this)">Remove</button></td>
                     </tr>
                     <tr>
-                        <td>Ashraf Ali</td>
+                        <td>Faizan Khalid</td>
                         <td class="status-inactive">Inactive</td>
                         <td><button class="btn-remove" onclick="removeRow(this)">Remove</button></td>
                     </tr>
@@ -213,7 +262,7 @@
         const canvas = document.getElementById('capture-canvas');
         const image = document.getElementById('captured-image');
         const captureBtn = document.getElementById('captureBtn');
-        const saveBtnContainer = document.getElementById('saveBtnContainer'); // Save Button Div
+        const saveBtnContainer = document.getElementById('saveBtnContainer');
         
         let stream = null;
         let isCaptured = false;
@@ -233,7 +282,6 @@
 
         function toggleCamera() {
             if (!isCaptured) {
-                // PHOTO KHICHO
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 canvas.getContext('2d').drawImage(video, 0, 0);
@@ -241,23 +289,14 @@
                 
                 video.style.display = 'none';
                 image.style.display = 'block';
-                
                 captureBtn.innerText = "Retake";
-                
-                // --- SAVE BUTTON DIKHAO ---
                 saveBtnContainer.style.display = 'block';
-
                 isCaptured = true;
             } else {
-                // RETAKE (Video wapas dikhao)
                 image.style.display = 'none';
                 video.style.display = 'block';
-                
                 captureBtn.innerText = "Capture";
-                
-                // --- SAVE BUTTON CHHUPAO ---
                 saveBtnContainer.style.display = 'none';
-
                 isCaptured = false;
             }
         }
@@ -266,19 +305,10 @@
             const nameInp = document.getElementById('nameInput');
             const mobileInp = document.getElementById('mobileInput');
             const name = nameInp.value;
-            const mobile = mobileInp.value;
 
-            // Validation
-            if(!isCaptured) {
-                alert("Please capture a photo first!");
-                return;
-            }
-            if(name.trim() === "" || mobile.trim() === "") {
-                alert("Please enter both Name and Mobile Number!");
-                return;
-            }
+            if(!isCaptured) { alert("Please capture a photo first!"); return; }
+            if(name.trim() === "" || mobileInp.value.trim() === "") { alert("Please enter both Name and Mobile Number!"); return; }
 
-            // Table Add Row
             const table = document.getElementById('attendantTable').getElementsByTagName('tbody')[0];
             const newRow = table.insertRow();
             
@@ -296,16 +326,12 @@
             btn.onclick = function() { removeRow(this); };
             cellRemove.appendChild(btn);
 
-            // Reset Form
             nameInp.value = "";
             mobileInp.value = "";
-            
-            // Reset Camera & Hide Save Button
             image.style.display = 'none';
             video.style.display = 'block';
             captureBtn.innerText = "Capture";
-            saveBtnContainer.style.display = 'none'; // Save button wapas gayab
-            
+            saveBtnContainer.style.display = 'none';
             isCaptured = false;
 
             alert("Visitor Added Successfully!");
